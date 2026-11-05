@@ -3,12 +3,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 
 from app import models  # noqa: F401  (registers tables)
 from app.api import auth, contact, profile, routes, uploads
 from app.config import settings
 from app.database.session import Base, engine
+from app.services.images import storage
 
 logging.basicConfig(level=logging.INFO)
 
@@ -67,5 +68,9 @@ app.include_router(contact.router, prefix="/api/contact")
 app.include_router(uploads.router, prefix="/api/uploads")
 app.include_router(routes.router, prefix="/api")
 
-settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
+@app.get("/uploads/{filename}", include_in_schema=False)
+def serve_upload(filename: str):
+    return RedirectResponse(
+        url=storage.url_for(filename),
+        status_code=302,
+    )

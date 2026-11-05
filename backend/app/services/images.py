@@ -1,43 +1,109 @@
+
 import io
+import os
 import re
 import uuid
-from pathlib import Path
 
+import cloudinary
+import cloudinary.api
+import cloudinary.uploader
 from fastapi import HTTPException, UploadFile
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 from app.config import settings
 
-Image.MAX_IMAGE_PIXELS = 40_000_000  # decompression-bomb guard (PIL errors at 2x this)
+Image.MAX_IMAGE_PIXELS = 40_000_000
 
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP", "GIF"}
 _URL_RE = re.compile(r"^/uploads/([a-f0-9]{32}(?:_sm)?\.(?:webp|pdf))$")
 
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True,
+)
 
-class LocalStorage:
-    """Stores files on disk. To use S3/Cloudinary later, implement the same three methods."""
 
-    def __init__(self, root: Path) -> None:
-        self.root = root
-        self.root.mkdir(parents=True, exist_ok=True)
+class CloudinaryStorage:
+    """Cloudinary storage that preserves existing /uploads/ database URLs."""
 
-    def write(self, name: str, data: bytes) -> str:
-        (self.root / name).write_bytes(data)
+    def write_image(self, name: str, data: bytes) -> str:
+        stem = name.removesuffix(".webp")
+        cloudinary.uploader.upload(
+            data,
+            public_id=f"portfolio/{stem}",
+            resource_type="image",
+            overwrite=True,
+            format="webp",
+            use_filename=False,
+            unique_filename=False,
+        )
         return f"/uploads/{name}"
 
+    def write_pdf(self, name: str, data: bytes) -> str:
+        cloudinary.uploader.upload(
+            data,
+            public_id=f"portfolio/{name}",
+            resource_type="raw",
+            overwrite=True,
+            use_filename=False,
+            unique_filename=False,
+        )
+        return f"/uploads/{name}"
+
+    def url_for(self, filename: str) -> str:
+        match = _URL_RE.fullmatch(f"/uploads/{filename}")
+        if not match:
+            raise HTTPException(status_code=404, detail="File not found")
+
+        name = match.group(1)
+
+        if name.endswith(".pdf"):
+            public_id = f"portfolio/{name}"
+            resource_type = "raw"
+        else:
+            public_id = f"portfolio/{name[:-5]}"
+            resource_type = "image"
+
+        try:
+            result = cloudinary.api.resource(
+                public_id,
+                resource_type=resource_type,
+            )
+            return result["secure_url"]
+        except Exception:
+            raise HTTPException(status_code=404, detail="File not found")
+
     def delete_url(self, url: str) -> None:
-        m = _URL_RE.match(url or "")
-        if not m:
+        match = _URL_RE.fullmatch(url or "")
+        if not match:
             return
-        name = m.group(1)
-        names = [name]
-        if name.endswith(".webp") and "_sm" not in name:
-            names.append(name[:-5] + "_sm.webp")
-        for n in names:
-            (self.root / n).unlink(missing_ok=True)
+
+        name = match.group(1)
+
+        try:
+            if name.endswith(".pdf"):
+                cloudinary.uploader.destroy(
+                    f"portfolio/{name}",
+                    resource_type="raw",
+                    invalidate=True,
+                )
+            else:
+                stem = name[:-5]
+                if stem.endswith("_sm"):
+                    return
+                for image_stem in (stem, f"{stem}_sm"):
+                    cloudinary.uploader.destroy(
+                        f"portfolio/{image_stem}",
+                        resource_type="image",
+                        invalidate=True,
+                    )
+        except Exception:
+            pass
 
 
-storage = LocalStorage(settings.UPLOAD_DIR)
+storage = CloudinaryStorage()
 
 
 def _read_bounded(upload: UploadFile) -> bytes:
@@ -52,27 +118,40 @@ def _read_bounded(upload: UploadFile) -> bytes:
 
 def _to_webp(img: Image.Image, max_side: int) -> bytes:
     copy = img.copy()
-    copy.thumbnail((max_side, max_side), Image.LANCZOS)
+    copy.thumbnail((max_side, max_side), Image.Resampling.LANCZOS)
     buf = io.BytesIO()
     copy.save(buf, format="WEBP", quality=82, method=4)
     return buf.getvalue()
 
 
 def save_image(upload: UploadFile) -> str:
-    """Validate the bytes are a real image, strip metadata, resize, store a full and a small WebP."""
     data = _read_bounded(upload)
+
     try:
         with Image.open(io.BytesIO(data)) as probe:
             probe.verify()
+
         img = Image.open(io.BytesIO(data))
         fmt = img.format
+
         if fmt not in ALLOWED_FORMATS:
-            raise HTTPException(status_code=400, detail="Only JPEG, PNG, WebP or GIF images are allowed")
+            raise HTTPException(
+                status_code=400,
+                detail="Only JPEG, PNG, WebP or GIF images are allowed",
+            )
+
         img = ImageOps.exif_transpose(img)
         img.load()
+
     except HTTPException:
         raise
-    except (UnidentifiedImageError, OSError, SyntaxError, ValueError, Image.DecompressionBombError):
+    except (
+        UnidentifiedImageError,
+        OSError,
+        SyntaxError,
+        ValueError,
+        Image.DecompressionBombError,
+    ):
         raise HTTPException(status_code=400, detail="File is not a valid image")
 
     if img.mode in ("P", "LA", "PA"):
@@ -81,13 +160,21 @@ def save_image(upload: UploadFile) -> str:
         img = img.convert("RGB")
 
     name = uuid.uuid4().hex
-    url = storage.write(f"{name}.webp", _to_webp(img, 1600))
-    storage.write(f"{name}_sm.webp", _to_webp(img, 480))
-    return url
+
+    full = _to_webp(img, 1600)
+    small = _to_webp(img, 480)
+
+    storage.write_image(f"{name}.webp", full)
+    storage.write_image(f"{name}_sm.webp", small)
+
+    return f"/uploads/{name}.webp"
 
 
 def save_pdf(upload: UploadFile) -> str:
     data = _read_bounded(upload)
+
     if not data.startswith(b"%PDF-"):
         raise HTTPException(status_code=400, detail="File is not a valid PDF")
-    return storage.write(f"{uuid.uuid4().hex}.pdf", data)
+
+    name = f"{uuid.uuid4().hex}.pdf"
+    return storage.write_pdf(name, data)
