@@ -1,0 +1,16 @@
+from app.models.models import (  # noqa: F401
+    Certification,
+    ContactMessage,
+    Education,
+    Experience,
+    Note,
+    NoteCategory,
+    Photo,
+    PhotoCategory,
+    Profile,
+    Project,
+    ProjectImage,
+    Skill,
+    Tag,
+    User,
+)

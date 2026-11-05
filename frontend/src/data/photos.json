@@ -1,0 +1,8 @@
+[
+  { "id": "p1", "title": "[PLACEHOLDER] Graduation Day", "category": "University", "date": "2025-06-15", "tags": ["university", "graduation"], "description": "", "src": "" },
+  { "id": "p2", "title": "[PLACEHOLDER] Hackathon Team", "category": "Hackathons", "date": "2025-08-20", "tags": ["hackathon", "team"], "description": "", "src": "" },
+  { "id": "p3", "title": "[PLACEHOLDER] Conference Talk", "category": "Conferences", "date": "2025-11-02", "tags": ["conference", "speaking"], "description": "", "src": "" },
+  { "id": "p4", "title": "[PLACEHOLDER] Project Demo Day", "category": "Projects", "date": "2026-01-15", "tags": ["demo", "project"], "description": "", "src": "" },
+  { "id": "p5", "title": "[PLACEHOLDER] Trek in the Himalayas", "category": "Travel", "date": "2026-02-10", "tags": ["travel", "nepal"], "description": "", "src": "" },
+  { "id": "p6", "title": "[PLACEHOLDER] Certificate Ceremony", "category": "Certificates", "date": "2026-03-05", "tags": ["certificate"], "description": "", "src": "" }
+]

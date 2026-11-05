@@ -1,0 +1,10 @@
+[
+  { "id": 1, "category": "Programming", "items": ["Python", "JavaScript", "TypeScript", "Java", "C/C++", "SQL"] },
+  { "id": 2, "category": "Frontend", "items": ["React", "HTML5", "CSS3", "Tailwind CSS", "Bootstrap"] },
+  { "id": 3, "category": "Backend", "items": ["FastAPI", "Django", "Flask", "REST APIs"] },
+  { "id": 4, "category": "Database", "items": ["MySQL", "PostgreSQL", "SQLite", "MongoDB"] },
+  { "id": 5, "category": "AI / Data", "items": ["Machine Learning", "Data Analysis", "Pandas", "NumPy", "Scikit-learn", "TensorFlow / PyTorch"] },
+  { "id": 6, "category": "Tools", "items": ["Git", "GitHub", "Docker", "VS Code", "Linux", "Postman"] },
+  { "id": 7, "category": "Healthcare / Standards", "items": ["HL7 FHIR", "Healthcare APIs"] },
+  { "id": 8, "category": "Cloud / DevOps", "items": ["[Add cloud and DevOps tools you use]"] }
+]

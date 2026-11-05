@@ -1,0 +1,26 @@
+[
+  {
+    "id": "e1",
+    "company": "[PLACEHOLDER] Company Name",
+    "title": "Software Developer",
+    "type": "Full-time",
+    "start": "2025-06",
+    "end": "Present",
+    "location": "[City, Country]",
+    "responsibilities": ["[Responsibility 1]", "[Responsibility 2]"],
+    "tech": ["Python", "FastAPI", "React"],
+    "achievements": ["[Add a measurable achievement]"]
+  },
+  {
+    "id": "e2",
+    "company": "[PLACEHOLDER] Company Name",
+    "title": "Software Engineering Intern",
+    "type": "Internship",
+    "start": "2024-06",
+    "end": "2024-12",
+    "location": "[City, Country]",
+    "responsibilities": ["[Responsibility 1]", "[Responsibility 2]"],
+    "tech": ["[Tech 1]", "[Tech 2]"],
+    "achievements": ["[Add a measurable achievement]"]
+  }
+]

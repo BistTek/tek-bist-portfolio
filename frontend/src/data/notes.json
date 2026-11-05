@@ -1,0 +1,38 @@
+[
+  {
+    "id": "python-fstrings",
+    "title": "[PLACEHOLDER] Python f-strings, quick reference",
+    "category": "Python",
+    "tags": ["python", "basics"],
+    "date": "2026-01-10",
+    "readingTime": "3 min",
+    "featuredImage": "",
+    "author": "Er. Tek Bist",
+    "published": true,
+    "content": "## Why f-strings\n\nf-strings are the fastest, most readable way to format strings in Python 3.6+.\n\n```python\nname = 'Tek'\nprint(f'Hello, {name}!')\n```\n\nReplace this note with your own. Write in Markdown, including code fences, headings, and lists."
+  },
+  {
+    "id": "react-hooks-basics",
+    "title": "[PLACEHOLDER] React hooks: useState vs useEffect",
+    "category": "React",
+    "tags": ["react", "frontend"],
+    "date": "2026-02-02",
+    "readingTime": "5 min",
+    "featuredImage": "",
+    "author": "Er. Tek Bist",
+    "published": true,
+    "content": "## useState\n\nHolds local component state.\n\n## useEffect\n\nRuns side effects after render: data fetching, subscriptions, timers.\n\nReplace this with your own notes."
+  },
+  {
+    "id": "fastapi-first-endpoint",
+    "title": "[PLACEHOLDER] Your first FastAPI endpoint",
+    "category": "FastAPI",
+    "tags": ["fastapi", "backend", "python"],
+    "date": "2026-03-01",
+    "readingTime": "4 min",
+    "featuredImage": "",
+    "author": "Er. Tek Bist",
+    "published": true,
+    "content": "```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get('/')\ndef read_root():\n    return {'message': 'Hello'}\n```\n\nRun with `uvicorn main:app --reload`."
+  }
+]

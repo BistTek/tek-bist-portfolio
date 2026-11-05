@@ -1,0 +1,5 @@
+[
+  { "id": "c1", "name": "[PLACEHOLDER] Cloud Practitioner Certification", "issuer": "[Issuer]", "date": "2025-09", "category": "Cloud", "credentialId": "", "verifyUrl": "", "image": "" },
+  { "id": "c2", "name": "[PLACEHOLDER] Python for Data Science", "issuer": "[Issuer]", "date": "2025-05", "category": "AI/Data", "credentialId": "", "verifyUrl": "", "image": "" },
+  { "id": "c3", "name": "[PLACEHOLDER] FHIR Fundamentals", "issuer": "[Issuer]", "date": "2025-12", "category": "Healthcare", "credentialId": "", "verifyUrl": "", "image": "" }
+]
