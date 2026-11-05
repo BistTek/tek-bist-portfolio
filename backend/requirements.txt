@@ -10,3 +10,5 @@ pillow>=10.3
 python-dotenv>=1.0
 psycopg2-binary>=2.9
 cloudinary>=1.47.0
+
+psycopg[binary]>=3.2
